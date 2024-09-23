@@ -1,0 +1,45 @@
+{% if freescout_container_labels_traefik_enabled %}
+traefik.enable=true
+
+{% if freescout_container_labels_traefik_docker_network %}
+traefik.docker.network={{ freescout_container_labels_traefik_docker_network }}
+{% endif %}
+
+{% set middlewares = [] %}
+
+{% if freescout_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ freescout_identifier }}-slashless-redirect.redirectregex.regex=({{ freescout_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ freescout_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
+{% set middlewares = middlewares + [freescout_identifier + '-slashless-redirect'] %}
+{% endif %}
+
+{#
+	Intentionally not adding a stripPrefix middleware.
+	freescout seems to serve itself under the same prefix it sees in the BASE_URL environment variable.
+#}
+
+{% if freescout_container_labels_traefik_additional_response_headers.keys() | length > 0 %}
+{% for name, value in freescout_container_labels_traefik_additional_response_headers.items() %}
+traefik.http.middlewares.{{ freescout_identifier }}-add-headers.headers.customresponseheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [freescout_identifier + '-add-headers'] %}
+{% endif %}
+
+traefik.http.routers.{{ freescout_identifier }}.rule={{ freescout_container_labels_traefik_rule }}
+{% if freescout_container_labels_traefik_priority | int > 0 %}
+traefik.http.routers.{{ freescout_identifier }}.priority={{ freescout_container_labels_traefik_priority }}
+{% endif %}
+traefik.http.routers.{{ freescout_identifier }}.service={{ freescout_identifier }}
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ freescout_identifier }}.middlewares={{ middlewares | join(',') }}
+{% endif %}
+traefik.http.routers.{{ freescout_identifier }}.entrypoints={{ freescout_container_labels_traefik_entrypoints }}
+traefik.http.routers.{{ freescout_identifier }}.tls={{ freescout_container_labels_traefik_tls | to_json }}
+{% if freescout_container_labels_traefik_tls %}
+traefik.http.routers.{{ freescout_identifier }}.tls.certResolver={{ freescout_container_labels_traefik_tls_certResolver }}
+{% endif %}
+
+traefik.http.services.{{ freescout_identifier }}.loadbalancer.server.port=80
+{% endif %}
+
+{{ freescout_container_labels_additional_labels }}

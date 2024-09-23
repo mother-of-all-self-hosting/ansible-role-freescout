@@ -1,0 +1,45 @@
+#jinja2: lstrip_blocks: "True"
+[Unit]
+Description=freescout ({{ freescout_identifier }})
+{% for service in freescout_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ freescout_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ freescout_identifier }} 2>/dev/null || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+			--rm \
+			--name={{ freescout_identifier }} \
+			--log-driver=none \
+			--network={{ freescout_container_network }} \
+			--env-file={{ freescout_base_path }}/env \
+			--label-file={{ freescout_base_path }}/labels \
+            --mount type=bind,src={{ freescout_data_path }},dst=/data \
+            --mount type=bind,src={{ freescout_logs_path }},dst=/www/logs \
+            --mount type=bind,src={{ freescout_modules_path }},dst=/assets/modules \
+			{% for arg in freescout_container_extra_arguments %}
+			{{ arg }} \
+			{% endfor %}
+			{{ freescout_container_image }}
+
+{% for network in freescout_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ freescout_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ freescout_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ freescout_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ freescout_identifier }} 2>/dev/null || true'
+
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ freescout_identifier }}
+
+[Install]
+WantedBy=multi-user.target

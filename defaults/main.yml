@@ -1,0 +1,158 @@
+---
+
+# Project source code URL: https://github.com/tiredofit/docker-freescout
+
+freescout_enabled: true
+
+freescout_identifier: freescout
+
+freescout_scheme: https
+
+# The hostname at which freescout is served.
+freescout_hostname: ''
+
+# The path at which freescout is served.
+# This value must either be `/` or not end with a slash (e.g. `/freescout`).
+freescout_path_prefix: /
+
+freescout_version: 1.17.87
+
+freescout_base_path: "/{{ freescout_identifier }}"
+freescout_data_path: "{{ freescout_base_path }}/data"
+freescout_logs_path: "{{ freescout_base_path }}/logs"
+freescout_modules_path: "{{ freescout_base_path }}/modules"
+
+# Admin credentials to be created on startup.
+freescout_admin_email: ''
+freescout_admin_password: ''
+
+# Application name
+freescout_application_name: FreeScout
+
+# Display errors on the website
+freescout_display_errors: "FALSE"
+
+# Enable app auto-update
+freescout_enable_auto_update: "FALSE"
+
+freescout_container_image: "{{ freescout_container_image_registry_prefix }}tiredofit/freescout:{{ freescout_container_image_tag }}"
+freescout_container_image_registry_prefix: docker.io/
+freescout_container_image_tag: "php8.3-{{ freescout_version }}"
+freescout_container_image_force_pull: "{{ freescout_container_image.endswith(':latest') }}"
+
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+freescout_container_network: "{{ freescout_identifier }}"
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+freescout_container_additional_networks: []
+
+# freescout_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `freescout_container_labels_additional_labels`.
+freescout_container_labels_traefik_enabled: true
+freescout_container_labels_traefik_docker_network: "{{ freescout_container_network }}"
+freescout_container_labels_traefik_hostname: "{{ freescout_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/freescout`).
+freescout_container_labels_traefik_path_prefix: "{{ freescout_path_prefix }}"
+freescout_container_labels_traefik_rule: "Host(`{{ freescout_container_labels_traefik_hostname }}`){% if freescout_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ freescout_container_labels_traefik_path_prefix }}`){% endif %}"
+freescout_container_labels_traefik_priority: 0
+freescout_container_labels_traefik_entrypoints: web-secure
+freescout_container_labels_traefik_tls: "{{ freescout_container_labels_traefik_entrypoints != 'web' }}"
+freescout_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own headers, use `freescout_container_labels_traefik_additional_response_headers_custom`
+freescout_container_labels_traefik_additional_response_headers: "{{ freescout_container_labels_traefik_additional_response_headers_auto | combine(freescout_container_labels_traefik_additional_response_headers_custom) }}"
+freescout_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': freescout_http_header_xss_protection} if freescout_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': freescout_http_header_frame_options} if freescout_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': freescout_http_header_content_type_options} if freescout_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': freescout_http_header_content_security_policy} if freescout_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': freescout_http_header_content_permission_policy} if freescout_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': freescout_http_header_strict_transport_security} if freescout_http_header_strict_transport_security and freescout_container_labels_traefik_tls else {})
+  }}
+freescout_container_labels_traefik_additional_response_headers_custom: {}
+
+# freescout_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# freescout_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+freescout_container_labels_additional_labels: ''
+
+# A list of extra arguments to pass to the container
+freescout_container_extra_arguments: []
+
+# List of systemd services that freescout.service depends on
+freescout_systemd_required_services_list: ['docker.service']
+
+# Specifies the value of the `X-XSS-Protection` header
+# Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+#
+# Learn more about it is here:
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+# - https://portswigger.net/web-security/cross-site-scripting/reflected
+freescout_http_header_xss_protection: "1; mode=block"
+
+# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+freescout_http_header_frame_options: SAMEORIGIN
+
+# Specifies the value of the `X-Content-Type-Options` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+freescout_http_header_content_type_options: nosniff
+
+# Specifies the value of the `Content-Security-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+freescout_http_header_content_security_policy: frame-ancestors 'self'
+
+# Specifies the value of the `Permission-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
+freescout_http_header_content_permission_policy: "{{ 'interest-cohort=()' if freescout_floc_optout_enabled else '' }}"
+
+# Specifies the value of the `Strict-Transport-Security` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+freescout_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if freescout_hsts_preload_enabled else '' }}"
+
+# Controls whether to send a "Permissions-Policy interest-cohort=();" header along with all responses
+#
+# Learn more about what it is here:
+# - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
+# - https://paramdeo.com/blog/opting-your-website-out-of-googles-floc-network
+# - https://amifloced.org/
+#
+# Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
+# See: `freescout_content_permission_policy`
+freescout_floc_optout_enabled: true
+
+# Controls if HSTS preloading is enabled
+#
+# In its strongest and recommended form, the [HSTS policy](https://www.chromium.org/hsts) includes all subdomains, and
+# indicates a willingness to be "preloaded" into browsers:
+# `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+# For more information visit:
+# - https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# - https://hstspreload.org/#opt-in
+# See: `freescout_http_header_strict_transport_security`
+freescout_hsts_preload_enabled: false
+
+freescout_database_username: freescout
+freescout_database_password: ''
+freescout_database_hostname: ''
+freescout_database_port: 5432
+freescout_database_name: freescout
+freescout_database_type: pgsql
+freescout_database_pgsql_ssl_mode: prefer
+
+freescout_database_connection_string: "postgres://{{ freescout_database_username }}:{{ freescout_database_password }}@{{ freescout_database_hostname }}:{{ freescout_database_port }}/{{ freescout_database_name }}?sslmode=disable"
+
+# Additional environment variables.
+freescout_environment_variables_additional_variables: ''
