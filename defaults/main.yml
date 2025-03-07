@@ -15,7 +15,7 @@ freescout_hostname: ''
 # This value must either be `/` or not end with a slash (e.g. `/freescout`).
 freescout_path_prefix: /
 
-freescout_version: 1.17.108
+freescout_version: 1.17.110
 
 freescout_base_path: "/{{ freescout_identifier }}"
 freescout_data_path: "{{ freescout_base_path }}/data"
