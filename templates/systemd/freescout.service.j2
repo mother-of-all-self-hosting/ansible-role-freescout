@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 #jinja2: lstrip_blocks: "True"
 [Unit]
-Description=freescout ({{ freescout_identifier }})
+Description=FreeScout ({{ freescout_identifier }})
 {% for service in freescout_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}

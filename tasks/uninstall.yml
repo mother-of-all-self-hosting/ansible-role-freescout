@@ -4,26 +4,26 @@
 
 ---
 
-- name: Check existence of freescout systemd service
+- name: Check existence of FreeScout systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ freescout_identifier }}.service"
   register: freescout_service_stat
 
 - when: freescout_service_stat.stat.exists | bool
   block:
-    - name: Ensure freescout systemd service is stopped
+    - name: Ensure FreeScout systemd service is stopped
       ansible.builtin.service:
         name: "{{ freescout_identifier }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Ensure freescout systemd service does not exists
+    - name: Ensure FreeScout systemd service does not exists
       ansible.builtin.file:
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ freescout_identifier }}.service"
         state: absent
 
-    - name: Ensure freescout path doesn't exist
+    - name: Ensure FreeScout path doesn't exist
       ansible.builtin.file:
         path: "{{ freescout_base_path }}"
         state: absent

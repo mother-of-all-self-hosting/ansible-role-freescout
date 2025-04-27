@@ -4,9 +4,9 @@ SPDX-FileCopyrightText: 2024 Nikita Chernyi
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# freescout Ansible role
+# FreeScout Ansible role
 
-This is an [Ansible](https://www.ansible.com/) role which installs [freescout](https://freescout.net) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [FreeScout](https://freescout.net) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
 This role *implicitly* depends on:
 

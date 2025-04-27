@@ -12,10 +12,10 @@ freescout_identifier: freescout
 
 freescout_scheme: https
 
-# The hostname at which freescout is served.
+# The hostname at which FreeScout is served.
 freescout_hostname: ''
 
-# The path at which freescout is served.
+# The path at which FreeScout is served.
 # This value must either be `/` or not end with a slash (e.g. `/freescout`).
 freescout_path_prefix: /
 

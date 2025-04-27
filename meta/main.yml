@@ -3,7 +3,7 @@ galaxy_info:
   company: etke.cc
   role_name: freescout
   namespace: etkecc
-  description: freescout
+  description: FreeScout
   platforms:
     - name: Debian
       versions:
