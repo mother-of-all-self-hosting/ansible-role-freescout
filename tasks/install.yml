@@ -4,7 +4,7 @@
 
 ---
 
-- name: Ensure freescout paths exist
+- name: Ensure FreeScout paths exist
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -15,7 +15,7 @@
     - "{{ freescout_logs_path }}"
     - "{{ freescout_modules_path }}"
 
-- name: Ensure freescout support files installed
+- name: Ensure FreeScout support files installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ freescout_base_path }}/{{ item }}"
@@ -24,7 +24,7 @@
     - env
     - labels
 
-- name: Ensure freescout container image is pulled
+- name: Ensure FreeScout container image is pulled
   community.docker.docker_image:
     name: "{{ freescout_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
@@ -35,14 +35,14 @@
   delay: "{{ devture_playbook_help_container_retries_delay }}"
   until: result is not failed
 
-- name: Ensure freescout container network is created
+- name: Ensure FreeScout container network is created
   community.general.docker_network:
     enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ freescout_container_network }}"
     driver: bridge
     driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
-- name: Ensure freescout systemd service is present
+- name: Ensure FreeScout systemd service is present
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/freescout.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ freescout_identifier }}.service"

@@ -4,7 +4,7 @@
 
 ---
 
-- name: Fail if required freescout settings not defined
+- name: Fail if required FreeScout settings not defined
   ansible.builtin.fail:
     msg: >
       You need to define a required configuration setting (`{{ item }}`).
@@ -21,7 +21,7 @@
 
 - when: freescout_container_labels_traefik_enabled | bool
   block:
-    - name: Fail if required freescout Traefik settings not defined
+    - name: Fail if required FreeScout Traefik settings not defined
       ansible.builtin.fail:
         msg: >-
           You need to define a required configuration setting (`{{ item }}`).
