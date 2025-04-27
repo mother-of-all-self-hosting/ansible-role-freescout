@@ -3,42 +3,27 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 # Project source code URL: https://github.com/tiredofit/docker-freescout
 
 freescout_enabled: true
 
 freescout_identifier: freescout
-
-freescout_scheme: https
-
-# The hostname at which FreeScout is served.
-freescout_hostname: ''
-
-# The path at which FreeScout is served.
-# This value must either be `/` or not end with a slash (e.g. `/freescout`).
-freescout_path_prefix: /
-
-# renovate: datasource=docker depName=tiredofit/freescout versioning=semver
-freescout_version: 1.17.113
-
 freescout_base_path: "/{{ freescout_identifier }}"
 freescout_data_path: "{{ freescout_base_path }}/data"
 freescout_logs_path: "{{ freescout_base_path }}/logs"
 freescout_modules_path: "{{ freescout_base_path }}/modules"
 
-# Admin credentials to be created on startup.
-freescout_admin_email: ''
-freescout_admin_password: ''
+# renovate: datasource=docker depName=tiredofit/freescout versioning=semver
+freescout_version: 1.17.113
 
-# Application name
-freescout_application_name: FreeScout
+# The hostname at which FreeScout is served.
+freescout_hostname: ''
 
-# Display errors on the website
-freescout_display_errors: "FALSE"
+freescout_scheme: https
 
-# Enable app auto-update
-freescout_enable_auto_update: "FALSE"
+# The path at which FreeScout is served.
+# This value must either be `/` or not end with a slash (e.g. `/freescout`).
+freescout_path_prefix: /
 
 freescout_container_image: "{{ freescout_container_image_registry_prefix }}tiredofit/freescout:{{ freescout_container_image_tag }}"
 freescout_container_image_registry_prefix: docker.io/
@@ -94,9 +79,6 @@ freescout_container_labels_additional_labels: ''
 # A list of extra arguments to pass to the container
 freescout_container_extra_arguments: []
 
-# List of systemd services that freescout.service depends on
-freescout_systemd_required_services_list: ['docker.service']
-
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
 #
@@ -143,6 +125,22 @@ freescout_floc_optout_enabled: true
 # - https://hstspreload.org/#opt-in
 # See: `freescout_http_header_strict_transport_security`
 freescout_hsts_preload_enabled: false
+
+# List of systemd services that freescout.service depends on
+freescout_systemd_required_services_list: ['docker.service']
+
+# Admin credentials to be created on startup.
+freescout_admin_email: ''
+freescout_admin_password: ''
+
+# Application name
+freescout_application_name: FreeScout
+
+# Display errors on the website
+freescout_display_errors: "FALSE"
+
+# Enable app auto-update
+freescout_enable_auto_update: "FALSE"
 
 freescout_database_username: freescout
 freescout_database_password: ''
