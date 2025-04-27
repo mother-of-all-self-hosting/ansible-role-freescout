@@ -141,8 +141,11 @@ freescout_floc_optout_enabled: true
 # See: `freescout_http_header_strict_transport_security`
 freescout_hsts_preload_enabled: false
 
-# List of systemd services that freescout.service depends on
-freescout_systemd_required_services_list: ['docker.service']
+# List of systemd services that the FreeScout systemd service depends on
+freescout_systemd_required_services_list: "{{ freescout_systemd_required_services_list_default + freescout_systemd_required_services_list_auto + freescout_systemd_required_services_list_custom }}"
+freescout_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+freescout_systemd_required_services_list_auto: []
+freescout_systemd_required_services_list_custom: []
 
 # Admin credentials to be created on startup.
 freescout_admin_email: ''
