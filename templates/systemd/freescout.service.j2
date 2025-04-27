@@ -20,19 +20,19 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ freescout_identifier }} 2>/dev/null || true'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-			--rm \
-			--name={{ freescout_identifier }} \
-			--log-driver=none \
-			--network={{ freescout_container_network }} \
-			--env-file={{ freescout_base_path }}/env \
-			--label-file={{ freescout_base_path }}/labels \
-            --mount type=bind,src={{ freescout_data_path }},dst=/data \
-            --mount type=bind,src={{ freescout_logs_path }},dst=/www/logs \
-            --mount type=bind,src={{ freescout_modules_path }},dst=/assets/modules \
-			{% for arg in freescout_container_extra_arguments %}
-			{{ arg }} \
-			{% endfor %}
-			{{ freescout_container_image }}
+      --rm \
+      --name={{ freescout_identifier }} \
+      --log-driver=none \
+      --network={{ freescout_container_network }} \
+      --env-file={{ freescout_base_path }}/env \
+      --label-file={{ freescout_base_path }}/labels \
+      --mount type=bind,src={{ freescout_data_path }},dst=/data \
+      --mount type=bind,src={{ freescout_logs_path }},dst=/www/logs \
+      --mount type=bind,src={{ freescout_modules_path }},dst=/assets/modules \
+      {% for arg in freescout_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
+      {{ freescout_container_image }}
 
 {% for network in freescout_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ freescout_identifier }}
