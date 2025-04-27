@@ -19,6 +19,7 @@ freescout_hostname: ''
 # This value must either be `/` or not end with a slash (e.g. `/freescout`).
 freescout_path_prefix: /
 
+# renovate: datasource=docker depName=tiredofit/freescout versioning=semver
 freescout_version: 1.17.113
 
 freescout_base_path: "/{{ freescout_identifier }}"
