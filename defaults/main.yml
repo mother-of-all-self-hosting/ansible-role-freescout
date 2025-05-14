@@ -17,7 +17,7 @@ freescout_data_path: "{{ freescout_base_path }}/data"
 freescout_logs_path: "{{ freescout_base_path }}/logs"
 freescout_modules_path: "{{ freescout_base_path }}/modules"
 
-# NOTE: if you change prefix (php8.3- as of today), you must update `extractVersion` in the .github/renovate.json file as well!
+# NOTE: if you change prefix (php8.3- as of today), you must update `extractVersionTemplate` in the .github/renovate.json file as well!
 # renovate: datasource=docker depName=tiredofit/freescout versioning=semver
 freescout_version: php8.3-1.17.113
 

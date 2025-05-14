@@ -15,7 +15,7 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-.]+?) depName=(?<depName>[^\\s]+?)(?: (?:lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[a-z-0-9]+?))?\\s+[A-Za-z0-9_]+?(?:_version|_tag)\\s*:\\s*[\"']?(?<currentValue>.+?)[\"']?(?:\\s|$)"
       ],
-      "extractVersion": "php8\\.3-(\\d+\\.\\d+\\.\\d+)"
+      "extractVersionTemplate": "php8\\.3-(\\d+\\.\\d+\\.\\d+)"
     }
   ]
 }
