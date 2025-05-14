@@ -17,8 +17,9 @@ freescout_data_path: "{{ freescout_base_path }}/data"
 freescout_logs_path: "{{ freescout_base_path }}/logs"
 freescout_modules_path: "{{ freescout_base_path }}/modules"
 
+# NOTE: if you change prefix (php8.3- as of today), you must update `extractVersion` in the .github/renovate.json file as well!
 # renovate: datasource=docker depName=tiredofit/freescout versioning=semver
-freescout_version: 1.17.113
+freescout_version: php8.3-1.17.113
 
 # The hostname at which FreeScout is served.
 freescout_hostname: ''
@@ -30,7 +31,7 @@ freescout_scheme: https
 freescout_path_prefix: /
 
 freescout_container_image: "{{ freescout_container_image_registry_prefix }}tiredofit/freescout:{{ freescout_container_image_tag }}"
-freescout_container_image_tag: "php8.3-{{ freescout_version }}"
+freescout_container_image_tag: "{{ freescout_version }}"
 freescout_container_image_registry_prefix: "{{ freescout_container_image_registry_prefix_upstream }}"
 freescout_container_image_registry_prefix_upstream: "{{ freescout_container_image_registry_prefix_upstream_default }}"
 freescout_container_image_registry_prefix_upstream_default: docker.io/
