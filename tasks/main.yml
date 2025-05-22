@@ -1,13 +1,18 @@
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Nikita Chernyi
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- block:
-    - when: freescout_enabled | bool
+
+- name: Perform FreeScout installation tasks
+  block:
+    - name: Validate FreeScout configuration
+      when: freescout_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
 
-    - when: freescout_enabled | bool
+    - name: Install FreeScout
+      when: freescout_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
@@ -15,8 +20,10 @@
     - install-all
     - install-freescout
 
-- block:
-    - when: not freescout_enabled | bool
+- name: Perform FreeScout uninstallation tasks
+  block:
+    - name: Uninstall FreeScout
+      when: not freescout_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
     - setup-all
