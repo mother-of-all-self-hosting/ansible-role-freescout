@@ -4,27 +4,25 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Perform FreeScout installation tasks
-  block:
-    - name: Validate FreeScout configuration
-      when: freescout_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
-
-    - name: Install FreeScout
-      when: freescout_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
     - setup-freescout
     - install-all
     - install-freescout
+  block:
+    - name: Validate FreeScout configuration
+      when: freescout_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+    - name: Install FreeScout
+      when: freescout_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform FreeScout uninstallation tasks
+  tags:
+    - setup-all
+    - setup-freescout
   block:
     - name: Uninstall FreeScout
       when: not freescout_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
-  tags:
-    - setup-all
-    - setup-freescout
