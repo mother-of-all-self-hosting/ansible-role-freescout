@@ -12,6 +12,15 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["tiredofit/freescout"],
       "versioning": "regex:^php8\\.3-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "matchPackageNames": [
+        "/ansible-lint/",
+        "/pre-commit-hooks/"
+      ],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "pr"
     }
   ],
   "customManagers": [
