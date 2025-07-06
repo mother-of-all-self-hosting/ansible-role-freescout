@@ -14,10 +14,7 @@
       "versioning": "regex:^php8\\.3-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
-      "matchPackageNames": [
-        "/ansible-lint/",
-        "/pre-commit-hooks/"
-      ],
+      "matchFileNames": [".pre-commit-config.yaml"],
       "enabled": true,
       "automerge": true,
       "automergeType": "branch"
