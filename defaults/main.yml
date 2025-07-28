@@ -69,8 +69,14 @@ freescout_container_labels_traefik_entrypoints: web-secure
 freescout_container_labels_traefik_tls: "{{ freescout_container_labels_traefik_entrypoints != 'web' }}"
 freescout_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `freescout_container_labels_traefik_additional_request_headers_custom`
+freescout_container_labels_traefik_additional_request_headers: "{{ freescout_container_labels_traefik_additional_request_headers_auto | combine(freescout_container_labels_traefik_additional_request_headers_custom) }}"
+freescout_container_labels_traefik_additional_request_headers_auto: {}
+freescout_container_labels_traefik_additional_request_headers_custom: {}
+
 # Controls which additional headers to attach to all HTTP responses.
-# To add your own headers, use `freescout_container_labels_traefik_additional_response_headers_custom`
+# To add your own custom response headers, use `freescout_container_labels_traefik_additional_response_headers_custom`
 freescout_container_labels_traefik_additional_response_headers: "{{ freescout_container_labels_traefik_additional_response_headers_auto | combine(freescout_container_labels_traefik_additional_response_headers_custom) }}"
 freescout_container_labels_traefik_additional_response_headers_auto: |
   {{
