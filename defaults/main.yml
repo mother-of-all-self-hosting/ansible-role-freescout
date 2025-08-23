@@ -157,7 +157,10 @@ freescout_systemd_required_services_list_auto: []
 freescout_systemd_required_services_list_custom: []
 
 # List of systemd services that the FreeScout systemd service wants
-freescout_systemd_wanted_services_list: []
+freescout_systemd_wanted_services_list: "{{ freescout_systemd_wanted_services_list_default + freescout_systemd_wanted_services_list_auto + freescout_systemd_wanted_services_list_custom }}"
+freescout_systemd_wanted_services_list_default: []
+freescout_systemd_wanted_services_list_auto: []
+freescout_systemd_wanted_services_list_custom: []
 
 # Admin credentials to be created on startup.
 freescout_admin_email: ''
