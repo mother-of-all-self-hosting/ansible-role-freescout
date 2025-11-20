@@ -14,7 +14,11 @@
       "versioning": "regex:^php8\\.3-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
-      "matchFileNames": [".pre-commit-config.yaml"],
+      "matchFileNames": [
+        ".pre-commit-config.yaml",
+        ".github/workflows/autotag.yml",
+        ".github/workflows/pre-commit.yml"
+      ],
       "enabled": true,
       "automerge": true,
       "automergeType": "branch",
