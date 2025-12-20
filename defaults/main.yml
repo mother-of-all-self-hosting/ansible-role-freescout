@@ -98,7 +98,9 @@ freescout_container_labels_traefik_additional_response_headers_custom: {}
 # freescout_container_labels_additional_labels: |
 #   my.label=1
 #   another.label="here"
-freescout_container_labels_additional_labels: ''
+freescout_container_labels_additional_labels: "{{ freescout_container_labels_additional_labels_auto | combine(freescout_container_labels_additional_labels_custom) }}"
+freescout_container_labels_additional_labels_auto: {}
+freescout_container_labels_additional_labels_custom: {}
 
 # A list of extra arguments to pass to the container
 freescout_container_extra_arguments: "{{ freescout_container_extra_arguments_auto + freescout_container_extra_arguments_custom }}"
