@@ -185,5 +185,8 @@ freescout_database_pgsql_ssl_mode: prefer
 
 freescout_database_connection_string: "postgres://{{ freescout_database_username }}:{{ freescout_database_password }}@{{ freescout_database_hostname }}:{{ freescout_database_port }}/{{ freescout_database_name }}?sslmode=disable"
 
+# Specify the timezone
+freescout_environment_variables_tz: UTC
+
 # Additional environment variables.
 freescout_environment_variables_additional_variables: ''
