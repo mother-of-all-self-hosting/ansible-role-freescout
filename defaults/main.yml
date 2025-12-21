@@ -22,7 +22,7 @@ freescout_modules_path: "{{ freescout_base_path }}/modules"
 freescout_version: php8.3-1.17.138
 
 # The hostname at which FreeScout is served.
-freescout_hostname: ''
+freescout_hostname: ""
 
 freescout_scheme: https
 
@@ -168,8 +168,8 @@ freescout_systemd_wanted_services_list_auto: []
 freescout_systemd_wanted_services_list_custom: []
 
 # Admin credentials to be created on startup.
-freescout_admin_email: ''
-freescout_admin_password: ''
+freescout_admin_email: ""
+freescout_admin_password: ""
 
 # Application name
 freescout_application_name: FreeScout
@@ -181,8 +181,8 @@ freescout_display_errors: "FALSE"
 freescout_enable_auto_update: "FALSE"
 
 freescout_database_username: freescout
-freescout_database_password: ''
-freescout_database_hostname: ''
+freescout_database_password: ""
+freescout_database_hostname: ""
 freescout_database_port: 5432
 freescout_database_name: freescout
 freescout_database_type: pgsql
@@ -194,4 +194,4 @@ freescout_database_connection_string: "postgres://{{ freescout_database_username
 freescout_environment_variables_tz: UTC
 
 # Additional environment variables.
-freescout_environment_variables_additional_variables: ''
+freescout_environment_variables_additional_variables: ""
