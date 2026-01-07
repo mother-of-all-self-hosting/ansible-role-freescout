@@ -55,4 +55,6 @@ traefik.http.routers.{{ freescout_identifier }}.tls.certResolver={{ freescout_co
 traefik.http.services.{{ freescout_identifier }}.loadbalancer.server.port=80
 {% endif %}
 
-{{ freescout_container_labels_additional_labels }}
+{% for arg in freescout_container_labels_additional_labels %}
+{{ arg }}
+{% endfor %}
