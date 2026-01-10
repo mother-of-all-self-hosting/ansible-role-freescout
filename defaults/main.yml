@@ -19,7 +19,7 @@ freescout_modules_path: "{{ freescout_base_path }}/modules"
 
 # NOTE: if you change prefix (php8.3- as of today), you must update the .github/renovate.json file as well!
 # renovate: datasource=docker depName=tiredofit/freescout
-freescout_version: php8.3-1.17.140
+freescout_version: php8.3-1.17.141
 
 # The hostname at which FreeScout is served.
 freescout_hostname: ""
