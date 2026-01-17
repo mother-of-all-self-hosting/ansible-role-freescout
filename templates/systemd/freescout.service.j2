@@ -1,5 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2024 Nikita Chernyi
+SPDX-FileCopyrightText: 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -26,6 +27,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --name={{ freescout_identifier }} \
       --log-driver=none \
       --network={{ freescout_container_network }} \
+      {% if freescout_container_http_host_bind_port %}
+      -p {{ freescout_container_http_host_bind_port }}:{{ freescout_container_http_port }} \
+      {% endif %}
       --env-file={{ freescout_base_path }}/env \
       --label-file={{ freescout_base_path }}/labels \
       --mount type=bind,src={{ freescout_data_path }},dst=/data \

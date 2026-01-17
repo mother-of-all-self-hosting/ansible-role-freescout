@@ -1,5 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2024 Nikita Chernyi
+SPDX-FileCopyrightText: 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -52,7 +53,7 @@ traefik.http.routers.{{ freescout_identifier }}.tls={{ freescout_container_label
 traefik.http.routers.{{ freescout_identifier }}.tls.certResolver={{ freescout_container_labels_traefik_tls_certResolver }}
 {% endif %}
 
-traefik.http.services.{{ freescout_identifier }}.loadbalancer.server.port=80
+traefik.http.services.{{ freescout_identifier }}.loadbalancer.server.port={{ freescout_container_http_port }}
 {% endif %}
 
 {% for arg in freescout_container_labels_additional_labels %}
