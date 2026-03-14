@@ -11,6 +11,11 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
+    - { "old": "freescout_database_hostname", "new": "<Replace with freescout_database_mysql_hostname or freescout_database_postgres_hostname>" }
+    - { "old": "freescout_database_port", "new": "<Replace with freescout_database_mysql_port or freescout_database_postgres_port>" }
+    - { "old": "freescout_database_username", "new": "<Replace with freescout_database_mysql_username or freescout_database_postgres_username>" }
+    - { "old": "freescout_database_password", "new": "<Replace with freescout_database_mysql_password or freescout_database_postgres_password>" }
+    - { "old": "freescout_database_pgsql_ssl_mode", "new": "freescout_database_postgres_sslmode" }
     - { "old": "freescout_http_header_content_permission_policy", "new": "freescout_http_header_permissions_policy" }
 
 - name: Fail if required FreeScout settings not defined
@@ -26,8 +31,30 @@
     - freescout_container_network
     - freescout_admin_email
     - freescout_admin_password
-    - freescout_database_hostname
-    - freescout_database_password
+
+- name: Fail if FreeScout database type invalid
+  ansible.builtin.fail:
+    msg: >-
+      freescout_database_type must be 'mysql' or 'postgres'
+  when: "freescout_database_type not in ['mysql', 'postgres']"
+
+- name: Fail if required FreeScout + MySQL integration settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) when `freescout_database_type` is `mysql`
+  when: "freescout_database_type == 'mysql' and lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - freescout_database_mysql_hostname
+    - freescout_database_mysql_password
+
+- name: Fail if required FreeScout + Postgres integration settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) when `freescout_database_type` is `postgres`
+  when: "freescout_database_type == 'postgres' and lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - freescout_database_postgres_hostname
+    - freescout_database_postgres_password
 
 - name: Run if Traefik is enabled
   when: freescout_container_labels_traefik_enabled | bool

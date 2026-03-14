@@ -226,13 +226,21 @@ freescout_display_errors: "FALSE"
 # Enable app auto-update
 freescout_enable_auto_update: "FALSE"
 
-freescout_database_username: freescout
-freescout_database_password: ""
-freescout_database_hostname: ""
-freescout_database_port: 5432
+# Specify a database driver to use
+# Valid values: mysql, postgres
+freescout_database_type: ""
+
+# Specify database configuration
+freescout_database_mysql_hostname: ""
+freescout_database_mysql_port: 3306
+freescout_database_mysql_username: freescout
+freescout_database_mysql_password: ""
+freescout_database_postgres_hostname: ""
+freescout_database_postgres_port: 5432
+freescout_database_postgres_username: freescout
+freescout_database_postgres_password: ""
+freescout_database_postgres_sslmode: prefer
 freescout_database_name: freescout
-freescout_database_type: pgsql
-freescout_database_pgsql_ssl_mode: prefer
 
 freescout_database_connection_string: "postgres://{{ freescout_database_username }}:{{ freescout_database_password }}@{{ freescout_database_hostname }}:{{ freescout_database_port }}/{{ freescout_database_name }}?sslmode=disable"
 
