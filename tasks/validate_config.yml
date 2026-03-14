@@ -18,6 +18,9 @@
     - { "old": "freescout_database_pgsql_ssl_mode", "new": "freescout_database_postgres_sslmode" }
     - { "old": "freescout_admin_email", "new": "freescout_environment_variables_admin_email" }
     - { "old": "freescout_admin_password", "new": "freescout_environment_variables_admin_password" }
+    - { "old": "freescout_application_name", "new": "freescout_environment_variables_application_name" }
+    - { "old": "freescout_display_errors", "new": "freescout_environment_variables_display_errors" }
+    - { "old": "freescout_enable_auto_update", "new": "freescout_environment_variables_enable_auto_update" }
     - { "old": "freescout_http_header_content_permission_policy", "new": "freescout_http_header_permissions_policy" }
 
 - name: Fail if required FreeScout settings not defined
