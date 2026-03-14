@@ -213,10 +213,6 @@ freescout_container_cleanup_command: |
   echo "Failed to remove stale container {{ freescout_identifier }} after {{ freescout_container_cleanup_timeout_seconds }} attempts" >&2;
   exit 1
 
-# Admin credentials to be created on startup.
-freescout_admin_email: ""
-freescout_admin_password: ""
-
 # Application name
 freescout_application_name: FreeScout
 
@@ -246,6 +242,10 @@ freescout_database_connection_string: "postgres://{{ freescout_database_username
 
 # Specify the timezone
 freescout_environment_variables_tz: UTC
+
+# Specify administrator's log in credentials
+freescout_environment_variables_admin_email: ""
+freescout_environment_variables_admin_password: ""
 
 # Specify the log level
 # Valid values: DEBUG, INFO, NOTICE, WARN

@@ -16,6 +16,8 @@
     - { "old": "freescout_database_username", "new": "<Replace with freescout_database_mysql_username or freescout_database_postgres_username>" }
     - { "old": "freescout_database_password", "new": "<Replace with freescout_database_mysql_password or freescout_database_postgres_password>" }
     - { "old": "freescout_database_pgsql_ssl_mode", "new": "freescout_database_postgres_sslmode" }
+    - { "old": "freescout_admin_email", "new": "freescout_environment_variables_admin_email" }
+    - { "old": "freescout_admin_password", "new": "freescout_environment_variables_admin_password" }
     - { "old": "freescout_http_header_content_permission_policy", "new": "freescout_http_header_permissions_policy" }
 
 - name: Fail if required FreeScout settings not defined
@@ -29,8 +31,8 @@
     - freescout_hostname
     - freescout_path_prefix
     - freescout_container_network
-    - freescout_admin_email
-    - freescout_admin_password
+    - freescout_environment_variables_admin_email
+    - freescout_environment_variables_admin_password
 
 - name: Fail if FreeScout database type invalid
   ansible.builtin.fail:
