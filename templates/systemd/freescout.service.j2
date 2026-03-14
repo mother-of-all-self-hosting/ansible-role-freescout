@@ -21,10 +21,16 @@ Type=simple
 Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ freescout_container_cleanup_command | trim | replace("\n", " ") }}'
 
+{#
+  Runs as root to avoid permission errors.
+  Note that the container's permission is managed by the container itself as the s6 overlay is enabled there.
+  See: https://github.com/tiredofit/docker-alpine
+#}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --rm \
       --name={{ freescout_identifier }} \
       --log-driver=none \
+      --user=0:0 \
       --network={{ freescout_container_network }} \
       {% if freescout_container_http_host_bind_port %}
       -p {{ freescout_container_http_host_bind_port }}:{{ freescout_container_http_port }} \

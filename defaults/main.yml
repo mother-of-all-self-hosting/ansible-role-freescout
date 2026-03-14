@@ -21,6 +21,9 @@ freescout_modules_path: "{{ freescout_base_path }}/modules"
 # renovate: datasource=docker depName=tiredofit/freescout
 freescout_version: php8.3-1.17.148
 
+freescout_uid: ""
+freescout_gid: ""
+
 # The scheme used for serving FreeScout.
 freescout_scheme: https
 

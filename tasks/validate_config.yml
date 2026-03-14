@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -18,12 +19,13 @@
       You need to define a required configuration setting (`{{ item }}`).
   when: "lookup('vars', item, default='') | string | length == 0"
   with_items:
-    - freescout_identifier
+    - freescout_uid
+    - freescout_gid
     - freescout_hostname
-    - freescout_admin_email
-    - freescout_admin_password
     - freescout_path_prefix
     - freescout_container_network
+    - freescout_admin_email
+    - freescout_admin_password
     - freescout_database_hostname
     - freescout_database_password
 
