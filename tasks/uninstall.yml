@@ -24,6 +24,42 @@
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ freescout_identifier }}.service"
         state: absent
 
+    - name: Ensure FreeScout support files do not exist
+      ansible.builtin.file:
+        path: "{{ freescout_base_path }}/{{ item }}"
+        state: absent
+      with_items:
+        - env
+        - labels
+
+    - name: Ensure FreeScout local data path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ freescout_data_path }}"
+      register: freescout_data_path_deletion_result
+      changed_when: freescout_data_path_deletion_result.rc == 0
+      failed_when: false
+
+    - name: Ensure FreeScout local logs path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ freescout_logs_path }}"
+      register: freescout_logs_path_deletion_result
+      changed_when: freescout_logs_path_deletion_result.rc == 0
+      failed_when: false
+
+    - name: Ensure FreeScout local modules path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ freescout_modules_path }}"
+      register: freescout_modules_path_deletion_result
+      changed_when: freescout_modules_path_deletion_result.rc == 0
+      failed_when: false
+
+    - name: Ensure FreeScout base path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ freescout_base_path }}"
+      register: freescout_base_path_deletion_result
+      changed_when: freescout_base_path_deletion_result.rc == 0
+      failed_when: false
+
     - name: Ensure FreeScout container network does not exist
       when: freescout_container_network_deletion_enabled
       block:
@@ -43,7 +79,56 @@
           register: freescout_network_deletion_result
           changed_when: freescout_container_network in freescout_network_deletion_result.stdout
 
-    - name: Ensure FreeScout path does not exist
-      ansible.builtin.file:
-        path: "{{ freescout_base_path }}"
-        state: absent
+- name: Check existence of FreeScout local data path
+  ansible.builtin.stat:
+    path: "{{ freescout_data_path }}"
+  register: freescout_data_path_stat
+
+# We just want to notify the user. Deleting data is too destructive.
+- name: Notify if FreeScout local data remains
+  when: freescout_data_path_stat.stat.exists | bool
+  ansible.builtin.set_fact:
+    devture_playbook_runtime_messages_list: |
+      {{
+        devture_playbook_runtime_messages_list | default([])
+        +
+        [
+          "Note: As the local FreeScout instance has been removed, some old data remains in `" + freescout_data_path + "`. Feel free to delete it."
+        ]
+      }}
+
+- name: Check existence of FreeScout local logs path
+  ansible.builtin.stat:
+    path: "{{ freescout_logs_path }}"
+  register: freescout_logs_path_stat
+
+# We just want to notify the user. Deleting data is too destructive.
+- name: Notify if FreeScout local log data remains
+  when: freescout_logs_path_stat.stat.exists | bool
+  ansible.builtin.set_fact:
+    devture_playbook_runtime_messages_list: |
+      {{
+        devture_playbook_runtime_messages_list | default([])
+        +
+        [
+          "Note: As the local FreeScout instance has been removed, some old log data remains in `" + freescout_logs_path + "`. Feel free to delete it."
+        ]
+      }}
+
+- name: Check existence of FreeScout local modules path
+  ansible.builtin.stat:
+    path: "{{ freescout_modules_path }}"
+  register: freescout_modules_path_stat
+
+# We just want to notify the user. Deleting data is too destructive.
+- name: Notify if FreeScout modules data remains
+  when: freescout_modules_path_stat.stat.exists | bool
+  ansible.builtin.set_fact:
+    devture_playbook_runtime_messages_list: |
+      {{
+        devture_playbook_runtime_messages_list | default([])
+        +
+        [
+          "Note: As the local FreeScout instance has been removed, some modules data remains in `" + freescout_modules_path + "`. Feel free to delete it."
+        ]
+      }}
