@@ -239,6 +239,10 @@ freescout_database_connection_string: "postgres://{{ freescout_database_username
 # Specify the timezone
 freescout_environment_variables_tz: UTC
 
+# Specify the log level
+# Valid values: DEBUG, INFO, NOTICE, WARN
+freescout_environment_variables_container_log_level: INFO
+
 # Additional environment variables.
 freescout_environment_variables_additional_variables: ""
 
