@@ -1,10 +1,10 @@
 <!--
-SPDX-FileCopyrightText: 2020 - 2024 MDAD project contributors
-SPDX-FileCopyrightText: 2020 - 2024 Slavi Pantaleev
 SPDX-FileCopyrightText: 2020 Aaron Raimist
 SPDX-FileCopyrightText: 2020 Chris van Dijk
 SPDX-FileCopyrightText: 2020 Dominik Zajac
 SPDX-FileCopyrightText: 2020 Mickaël Cornière
+SPDX-FileCopyrightText: 2020-2024 MDAD project contributors
+SPDX-FileCopyrightText: 2020-2024 Slavi Pantaleev
 SPDX-FileCopyrightText: 2022 François Darveau
 SPDX-FileCopyrightText: 2022 Julian Foad
 SPDX-FileCopyrightText: 2022 Warren Bailey
@@ -12,23 +12,24 @@ SPDX-FileCopyrightText: 2023 Antonis Christofides
 SPDX-FileCopyrightText: 2023 Felix Stupp
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 SPDX-FileCopyrightText: 2023 Pierre 'McFly' Marty
+SPDX-FileCopyrightText: 2024 Nikita Chernyi
 SPDX-FileCopyrightText: 2024 Thomas Miceli
-SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2024-2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 # Setting up FreeScout
 
-This is an [Ansible](https://www.ansible.com/) role which installs [FreeScout](https://freescout.apache.org/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [FreeScout](https://freescout.net) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-FreeScout is a Q&A community platform software for teams.
+FreeScout is a free open-source helpdesk and shared inbox solution.
 
-See the project's [documentation](https://freescout.apache.org/docs/) to learn what FreeScout does and why it might be useful to you.
+See the project's [documentation](https://github.com/freescout-help-desk/freescout/wiki) to learn what FreeScout does and why it might be useful to you.
 
 ## Prerequisites
 
-To run an FreeScout instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
+To run an FreeScout instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server or [Postgres](https://www.postgresql.org/).
 
 If you are looking for Ansible roles for a MySQL compatible server or Postgres, you can check out [ansible-role-mariadb](https://github.com/mother-of-all-self-hosting/ansible-role-mariadb) and [ansible-role-postgres](https://github.com/mother-of-all-self-hosting/ansible-role-postgres), both of which are maintained by the [Mother-of-All-Self-Hosting (MASH)](https://github.com/mother-of-all-self-hosting) team.
 
@@ -64,21 +65,9 @@ freescout_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
-**Note**: hosting FreeScout under a subpath (by configuring the `freescout_path_prefix` variable) does not seem to be possible due to FreeScout's technical limitations.
-
-### Automatic installation with environment variables
-
-By default the role is configured to install the service with environment variables automatically when running the installation command.
-
-To disable automatic installation, add the following configuration to your `vars.yml` file:
-
-```yaml
-freescout_environment_variables_auto_install: false
-```
-
 #### Specify database
 
-For automatic installation, it is necessary to select database used by FreeScout from a MySQL compatible database, Postgres, and SQLite.
+It is also necessary to select database used by FreeScout from a MySQL compatible database and Postgres.
 
 To use Postgres, add the following configuration to your `vars.yml` file:
 
@@ -86,26 +75,17 @@ To use Postgres, add the following configuration to your `vars.yml` file:
 freescout_database_type: postgres
 ```
 
-Set `mysql` to use a MySQL compatible database, and `sqlite` to use SQLite. The SQLite database is stored in the directory specified with `freescout_data_path`.
+Set `mysql` to use a MySQL compatible database.
 
 For other settings, check variables such as `freescout_database_*` on [`defaults/main.yml`](../defaults/main.yml).
 
-#### Specify details for the administrator
+### Specify administrator's log in credentials
 
-You also need to set the name, email address, and password for the administrator by adding the following configuration to your `vars.yml` file:
+You also need to set the email address and password for the administrator by adding the following configuration to your `vars.yml` file:
 
 ```yaml
-freescout_environment_variables_admin_name: ADMIN_NAME_HERE
 freescout_environment_variables_admin_email: ADMIN_EMAIL_ADDRESS_HERE
 freescout_environment_variables_admin_password: ADMIN_PASSWORD_HERE
-```
-
-#### Set email address for contact
-
-It is necessary to specify the email address for the contact who is responsible for the instance as well. Add the following configuration to your `vars.yml` file to set it:
-
-```yaml
-freescout_environment_variables_contact_email: CONTACT_EMAIL_ADDRESS_HERE
 ```
 
 ### Extending the configuration
@@ -132,13 +112,11 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, FreeScout becomes available at the specified hostname like `https://example.com`.
 
-To get started, open the URL with a web browser to log in to the instance. If automatic installation is disabled, please follow the set up wizard.
-
-After logging in as the administrator, you can configure settings of the instance (account registrations, SMTP settings, etc.) at `https://example.com/admin/dashboard`.
+To get started, open the URL with a web browser to log in to the instance.
 
 ## Troubleshooting
 
-FAQ is available on [this page](https://freescout.apache.org/docs/faq).
+FAQ is available on [this page](https://github.com/freescout-help-desk/freescout/wiki/FAQ).
 
 ### Check the service's logs
 
