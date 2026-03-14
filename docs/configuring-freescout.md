@@ -65,7 +65,7 @@ freescout_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
-#### Specify database
+### Specify database
 
 It is also necessary to select database used by FreeScout from a MySQL compatible database and Postgres.
 
