@@ -222,6 +222,7 @@ freescout_database_mysql_hostname: ""
 freescout_database_mysql_port: 3306
 freescout_database_mysql_username: freescout
 freescout_database_mysql_password: ""
+freescout_database_mysql_sslmode: false
 freescout_database_postgres_hostname: ""
 freescout_database_postgres_port: 5432
 freescout_database_postgres_username: freescout
@@ -231,8 +232,6 @@ freescout_database_postgres_password: ""
 # Valid values: see https://www.postgresql.org/docs/11/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS
 freescout_database_postgres_sslmode: disable
 freescout_database_name: freescout
-
-freescout_database_connection_string: "postgres://{{ freescout_database_username }}:{{ freescout_database_password }}@{{ freescout_database_hostname }}:{{ freescout_database_port }}/{{ freescout_database_name }}?sslmode={{ freescout_database_postgres_sslmode }}"
 
 # Specify the timezone
 freescout_environment_variables_tz: UTC
