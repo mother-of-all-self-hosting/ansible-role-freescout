@@ -85,7 +85,7 @@
   register: freescout_data_path_stat
 
 # We just want to notify the user. Deleting data is too destructive.
-- name: Notify if FreeScout local data remains
+- name: Inject the message about the remaining FreeScout local data path
   when: freescout_data_path_stat.stat.exists | bool
   ansible.builtin.set_fact:
     devture_playbook_runtime_messages_list: |
@@ -103,7 +103,7 @@
   register: freescout_logs_path_stat
 
 # We just want to notify the user. Deleting data is too destructive.
-- name: Notify if FreeScout local log data remains
+- name: Inject the message about the remaining FreeScout local log data path
   when: freescout_logs_path_stat.stat.exists | bool
   ansible.builtin.set_fact:
     devture_playbook_runtime_messages_list: |
@@ -121,7 +121,7 @@
   register: freescout_modules_path_stat
 
 # We just want to notify the user. Deleting data is too destructive.
-- name: Notify if FreeScout modules data remains
+- name: Inject the message about the remaining FreeScout modules data path
   when: freescout_modules_path_stat.stat.exists | bool
   ansible.builtin.set_fact:
     devture_playbook_runtime_messages_list: |
