@@ -39,7 +39,6 @@ freescout_container_image_tag: "{{ freescout_version }}"
 freescout_container_image_registry_prefix: "{{ freescout_container_image_registry_prefix_upstream }}"
 freescout_container_image_registry_prefix_upstream: "{{ freescout_container_image_registry_prefix_upstream_default }}"
 freescout_container_image_registry_prefix_upstream_default: docker.io/
-freescout_container_image_force_pull: "{{ freescout_container_image.endswith(':latest') }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 freescout_container_network: "{{ freescout_identifier }}"
