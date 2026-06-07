@@ -23,7 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is an [Ansible](https://www.ansible.com/) role which installs [FreeScout](https://freescout.net) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-FreeScout is a free open-source helpdesk and shared inbox solution.
+FreeScout is a free and open-source helpdesk and shared inbox solution.
 
 See the project's [documentation](https://github.com/freescout-help-desk/freescout/wiki) to learn what FreeScout does and why it might be useful to you.
 
