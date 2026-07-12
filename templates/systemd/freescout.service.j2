@@ -22,15 +22,23 @@ Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ freescout_container_cleanup_command | trim | replace("\n", " ") }}'
 
 {#
-  Runs as root to avoid permission errors.
-  Note that the container's permission is managed by the container itself as the s6 overlay is enabled there.
-  See: https://github.com/tiredofit/docker-alpine
+  The container runs unprivileged as freescout_uid:freescout_gid and cannot chown
+  its own volumes. The ExecStartPre below repairs /data ownership for the
+  root->uid transition: a host upgraded from the old root-running image left /data
+  root-owned. If the container exits immediately on start, the image failed its
+  /data write-check; confirm the chown ran and freescout_uid/freescout_gid are set.
 #}
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c 'chown -R {{ freescout_uid }}:{{ freescout_gid }} {{ freescout_data_path }}'
+
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --rm \
       --name={{ freescout_identifier }} \
       --log-driver=none \
-      --user=0:0 \
+      --user={{ freescout_uid }}:{{ freescout_gid }} \
+      --cap-drop=ALL \
+      --security-opt=no-new-privileges:true \
+      --read-only \
+      --tmpfs=/tmp:rw,exec,nosuid,size={{ freescout_container_tmpfs_size }} \
       --network={{ freescout_container_network }} \
       {% if freescout_container_http_host_bind_port %}
       -p {{ freescout_container_http_host_bind_port }}:{{ freescout_container_http_port }} \
@@ -38,8 +46,6 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --env-file={{ freescout_base_path }}/env \
       --label-file={{ freescout_base_path }}/labels \
       --mount type=bind,src={{ freescout_data_path }},dst=/data \
-      --mount type=bind,src={{ freescout_logs_path }},dst=/www/logs \
-      --mount type=bind,src={{ freescout_modules_path }},dst=/assets/modules \
       {% for volume in freescout_container_additional_volumes %}
       --mount type={{ volume.type | default('bind' if '/' in volume.src else 'volume') }},src={{ volume.src }},dst={{ volume.dst }}{{ (',' + volume.options) if volume.options | default('') else '' }} \
       {% endfor %}
@@ -59,6 +65,10 @@ ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_syste
 
 Restart=always
 RestartSec=30
+{# The ExecStartPre chown -R runs once over the whole /data on the root->uid
+   cutover; a large existing attachment tree can take minutes, so allow for it
+   rather than let the default 90s timeout kill the boot mid-chown. #}
+TimeoutStartSec=900
 SyslogIdentifier={{ freescout_identifier }}
 
 [Install]

@@ -14,12 +14,9 @@ freescout_enabled: true
 freescout_identifier: freescout
 freescout_base_path: "/{{ freescout_identifier }}"
 freescout_data_path: "{{ freescout_base_path }}/data"
-freescout_logs_path: "{{ freescout_base_path }}/logs"
-freescout_modules_path: "{{ freescout_base_path }}/modules"
 
-# NOTE: if you change prefix (php8.3- as of today), you must update the .github/renovate.json file as well!
-# renovate: datasource=docker depName=tiredofit/freescout
-freescout_version: php8.3-1.17.999
+# renovate: datasource=docker depName=ghcr.io/etkecc/freescout
+freescout_version: v1.8.229
 
 freescout_uid: ""
 freescout_gid: ""
@@ -34,11 +31,11 @@ freescout_hostname: ""
 # This value must either be `/` or not end with a slash (e.g. `/freescout`).
 freescout_path_prefix: /
 
-freescout_container_image: "{{ freescout_container_image_registry_prefix }}tiredofit/freescout:{{ freescout_container_image_tag }}"
+freescout_container_image: "{{ freescout_container_image_registry_prefix }}etkecc/freescout:{{ freescout_container_image_tag }}"
 freescout_container_image_tag: "{{ freescout_version }}"
 freescout_container_image_registry_prefix: "{{ freescout_container_image_registry_prefix_upstream }}"
 freescout_container_image_registry_prefix_upstream: "{{ freescout_container_image_registry_prefix_upstream_default }}"
-freescout_container_image_registry_prefix_upstream_default: docker.io/
+freescout_container_image_registry_prefix_upstream_default: ghcr.io/
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 freescout_container_network: "{{ freescout_identifier }}"
@@ -51,8 +48,18 @@ freescout_container_network_deletion_enabled: true
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 freescout_container_http_host_bind_port: ""
 
-# The port number in the container
-freescout_container_http_port: 80
+# The port number in the container.
+# Must match the nginx `listen` port baked into the image (unprivileged 8080,
+# so the container runs with --cap-drop=ALL and no cap_net_bind_service).
+freescout_container_http_port: 8080
+
+# Size of the writable /tmp tmpfs. The container root filesystem is --read-only,
+# so every runtime write lands either on this tmpfs (nginx temp + pid, php-fpm
+# socket, s6 supervise dirs, minified css/js builds, compiled config/views) or on
+# the /data bind mount. Mounted with `exec` (not the usual `noexec`) because s6
+# execs its service run-scripts from /tmp/s6. Raise it for sites with large upload
+# attachments, which transit nginx client_body_temp under /tmp before /data.
+freescout_container_tmpfs_size: 512m
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -261,6 +268,6 @@ freescout_environment_variables_additional_variables: ""
 #
 # This value is automatically computed during installation based on whether
 # any configuration files, the systemd service file, or the container image changed.
-# The default of `false` means "no restart needed" — appropriate when the role's
+# The default of `false` means "no restart needed", appropriate when the role's
 # installation tasks haven't run (e.g., due to --tags skipping them).
 freescout_restart_necessary: false

@@ -15,8 +15,6 @@
   with_items:
     - "{{ freescout_base_path }}"
     - "{{ freescout_data_path }}"
-    - "{{ freescout_logs_path }}"
-    - "{{ freescout_modules_path }}"
 
 - name: Ensure FreeScout support files installed
   ansible.builtin.template:

@@ -39,20 +39,6 @@
       changed_when: freescout_data_path_deletion_result.rc == 0
       failed_when: false
 
-    - name: Ensure FreeScout local logs path does not exist if empty
-      ansible.builtin.command:
-        cmd: "rmdir {{ freescout_logs_path }}"
-      register: freescout_logs_path_deletion_result
-      changed_when: freescout_logs_path_deletion_result.rc == 0
-      failed_when: false
-
-    - name: Ensure FreeScout local modules path does not exist if empty
-      ansible.builtin.command:
-        cmd: "rmdir {{ freescout_modules_path }}"
-      register: freescout_modules_path_deletion_result
-      changed_when: freescout_modules_path_deletion_result.rc == 0
-      failed_when: false
-
     - name: Ensure FreeScout base path does not exist if empty
       ansible.builtin.command:
         cmd: "rmdir {{ freescout_base_path }}"
@@ -97,38 +83,3 @@
         ]
       }}
 
-- name: Check existence of FreeScout local logs path
-  ansible.builtin.stat:
-    path: "{{ freescout_logs_path }}"
-  register: freescout_logs_path_stat
-
-# We just want to notify the user. Deleting data is too destructive.
-- name: Inject the message about the remaining FreeScout local log data path
-  when: freescout_logs_path_stat.stat.exists | bool
-  ansible.builtin.set_fact:
-    devture_playbook_runtime_messages_list: |
-      {{
-        devture_playbook_runtime_messages_list | default([])
-        +
-        [
-          "Note: As the local FreeScout instance has been removed, some old log data remains in `" + freescout_logs_path + "`. Feel free to delete it."
-        ]
-      }}
-
-- name: Check existence of FreeScout local modules path
-  ansible.builtin.stat:
-    path: "{{ freescout_modules_path }}"
-  register: freescout_modules_path_stat
-
-# We just want to notify the user. Deleting data is too destructive.
-- name: Inject the message about the remaining FreeScout modules data path
-  when: freescout_modules_path_stat.stat.exists | bool
-  ansible.builtin.set_fact:
-    devture_playbook_runtime_messages_list: |
-      {{
-        devture_playbook_runtime_messages_list | default([])
-        +
-        [
-          "Note: As the local FreeScout instance has been removed, some modules data remains in `" + freescout_modules_path + "`. Feel free to delete it."
-        ]
-      }}
