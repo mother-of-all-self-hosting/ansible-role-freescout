@@ -82,4 +82,3 @@
           "Note: As the local FreeScout instance has been removed, some old data remains in `" + freescout_data_path + "`. Feel free to delete it."
         ]
       }}
-
