@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify FreeScout systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for FreeScout service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: freescout.service
+      register: freescout_service
+      until: freescout_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert FreeScout service is active
+      ansible.builtin.assert:
+        that: freescout_service.status.ActiveState == 'active'
+        fail_msg: "freescout.service not active ({{ freescout_service.status.ActiveState }})"
+        success_msg: "freescout.service is active"
+
+    - name: Wait for FreeScout HTTP endpoint to respond (up to 10m)
+      ansible.builtin.uri:
+        url: "http://localhost:8080/"
+        method: GET
+        status_code: [200, 302]
+        follow_redirects: none
+      register: freescout_endpoint
+      until: freescout_endpoint.status in [200, 302]
+      retries: 120
+      delay: 5
+
+    - name: Assert FreeScout HTTP endpoint responds
+      ansible.builtin.assert:
+        that: freescout_endpoint.status in [200, 302]
+        fail_msg: "FreeScout did not respond as expected ({{ freescout_endpoint.status | default('no response') }})"
+        success_msg: "FreeScout responded with {{ freescout_endpoint.status }}"
+
+    - name: Show FreeScout systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
+          - "FreeScout HTTP: {{ freescout_endpoint.status }}"
