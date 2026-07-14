@@ -249,6 +249,8 @@ freescout_environment_variables_admin_password: ""
 # Specify the application name
 freescout_environment_variables_application_name: FreeScout
 
+freescout_environment_variables_site_url: "{{ freescout_scheme }}://{{ freescout_hostname }}"
+
 # Control if errors are displayed on the website
 freescout_environment_variables_display_errors: "FALSE"
 
