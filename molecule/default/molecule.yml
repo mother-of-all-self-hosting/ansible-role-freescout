@@ -30,7 +30,8 @@ provisioner:
         # Variables for FreeScout
         freescout_uid: 1000
         freescout_gid: 1000
-        freescout_hostname: freescout
+        freescout_scheme: http
+        freescout_hostname: localhost
         freescout_container_labels_traefik_enabled: false
         freescout_container_http_host_bind_port: 8080
         freescout_database_type: postgres
