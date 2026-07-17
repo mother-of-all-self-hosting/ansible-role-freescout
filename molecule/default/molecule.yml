@@ -27,6 +27,9 @@ provisioner:
   inventory:
     group_vars:
       all:
+        # Helper variables
+        freescout_debug_service_enabled: false
+
         # Variables for FreeScout
         freescout_uid: 1000
         freescout_gid: 1000
