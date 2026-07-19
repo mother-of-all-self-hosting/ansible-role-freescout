@@ -49,6 +49,10 @@ Currently these testing scenarios are available:
 
 Tests a standard FreeScout installation.
 
+### `default-selfbuild`
+
+Tests a standard FreeScout installation with self-building the container image.
+
 ### `mariadb`
 
 Tests a standard FreeScout installation with the MariaDB database.

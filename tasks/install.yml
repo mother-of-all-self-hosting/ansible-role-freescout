@@ -28,25 +28,50 @@
     - labels
   register: freescout_support_files_result
 
-- name: Ensure FreeScout container image is pulled via community.docker.docker_image_pull
-  when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
-  community.docker.docker_image_pull:
-    name: "{{ freescout_container_image }}"
-    pull: always
-  register: freescout_container_image_pull_result_ansible_module
-  retries: "{{ devture_playbook_help_container_retries_count }}"
-  delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: freescout_container_image_pull_result_ansible_module is not failed
+- name: Run if self-building of FreeScout container image is not enabled
+  when: "not freescout_container_image_self_build | bool"
+  block:
+    - name: Ensure FreeScout container image is pulled via community.docker.docker_image_pull
+      when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
+      community.docker.docker_image_pull:
+        name: "{{ freescout_container_image }}"
+        pull: always
+      register: freescout_container_image_pull_result_ansible_module
+      retries: "{{ devture_playbook_help_container_retries_count }}"
+      delay: "{{ devture_playbook_help_container_retries_delay }}"
+      until: freescout_container_image_pull_result_ansible_module is not failed
 
-- name: Ensure FreeScout container image is pulled via ansible.builtin.command
-  when: devture_systemd_docker_base_container_image_pull_method == 'command'
-  ansible.builtin.command:
-    cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ freescout_container_image }}"
-  register: freescout_container_image_pull_result_command
-  retries: "{{ devture_playbook_help_container_retries_count }}"
-  delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: freescout_container_image_pull_result_command is not failed
-  changed_when: "'Downloaded newer image' in freescout_container_image_pull_result_command.stdout"
+    - name: Ensure FreeScout container image is pulled via ansible.builtin.command
+      when: devture_systemd_docker_base_container_image_pull_method == 'command'
+      ansible.builtin.command:
+        cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ freescout_container_image }}"
+      register: freescout_container_image_pull_result_command
+      retries: "{{ devture_playbook_help_container_retries_count }}"
+      delay: "{{ devture_playbook_help_container_retries_delay }}"
+      until: freescout_container_image_pull_result_command is not failed
+      changed_when: "'Downloaded newer image' in freescout_container_image_pull_result_command.stdout"
+
+- name: Run if self-building of FreeScout container image is enabled
+  when: "freescout_container_image_self_build | bool"
+  block:
+    - name: Ensure FreeScout repository is present on self-build
+      ansible.builtin.git:
+        repo: "{{ freescout_container_image_self_build_repo }}"
+        version: "{{ freescout_container_image_self_build_repo_version }}"
+        dest: "{{ freescout_container_image_self_build_src_files_path }}"
+        force: "yes"
+      register: freescout_git_pull_results
+
+    - name: Ensure FreeScout container image is built
+      community.docker.docker_image_build:
+        name: "{{ freescout_container_image_self_build_name }}"
+        dockerfile: Dockerfile
+        path: "{{ freescout_container_image_self_build_src_files_path }}"
+        pull: true
+        rebuild: "{{ 'always' if freescout_git_pull_results.changed | bool else 'never' }}"
+        args:
+          FREESCOUT_VERSION: "{{ freescout_version | replace('v', '') }}"
+      register: freescout_container_image_build_result
 
 - name: Ensure FreeScout container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'

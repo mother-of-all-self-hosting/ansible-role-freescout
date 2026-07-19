@@ -37,6 +37,12 @@ freescout_container_image_registry_prefix: "{{ freescout_container_image_registr
 freescout_container_image_registry_prefix_upstream: "{{ freescout_container_image_registry_prefix_upstream_default }}"
 freescout_container_image_registry_prefix_upstream_default: ghcr.io/
 
+freescout_container_image_self_build: false
+freescout_container_image_self_build_name: "etkecc/freescout:{{ freescout_container_image_self_build_repo_version }}"
+freescout_container_image_self_build_repo: "https://github.com/etkecc/freescout.git"
+freescout_container_image_self_build_repo_version: main
+freescout_container_image_self_build_src_files_path: "{{ freescout_base_path }}/docker-src"
+
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 freescout_container_network: "{{ freescout_identifier }}"
 
