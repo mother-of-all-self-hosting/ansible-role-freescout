@@ -14,6 +14,13 @@
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
+      "ignoreUnstable": false,
+      "versioning": "loose",
+      "matchSourceUrls": [
+        "https://github.com{/,}**"
+      ]
+    },
+    {
       "matchFileNames": [
         ".github/workflows/autotag.yml",
         ".github/workflows/close-stale-issues.yml",
