@@ -16,7 +16,7 @@ freescout_base_path: "/{{ freescout_identifier }}"
 freescout_data_path: "{{ freescout_base_path }}/data"
 
 # renovate: datasource=docker depName=ghcr.io/etkecc/freescout
-freescout_version: v1.8.233
+freescout_version: v1.8.234
 
 freescout_uid: ""
 freescout_gid: ""
