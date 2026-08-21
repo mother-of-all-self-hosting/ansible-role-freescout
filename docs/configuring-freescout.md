@@ -65,7 +65,9 @@ freescout_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
-### Specify database
+### Configuring database
+
+#### Specify database
 
 It is also necessary to select database used by FreeScout from a MySQL compatible database and Postgres.
 
@@ -78,6 +80,30 @@ freescout_database_type: postgres
 Set `mysql` to use a MySQL compatible database.
 
 For other settings, check variables such as `freescout_database_*` on [`defaults/main.yml`](../defaults/main.yml).
+
+#### Configuring connection to the database server (optional)
+
+By default the role is configured to establish connection with the database server via the Unix socket. You can mount the Unix socket by adding the following configuration to your `vars.yml` file:
+
+```yaml
+# Specify the path to the MySQL compatible server's Unix socket path on the host (bind-mount source)
+freescout_database_mysql_socket_path_host: ""
+
+# Specify the path to the Postgres Unix socket path on the host (bind-mount source)
+freescout_database_postgres_socket_path_host: ""
+```
+
+Setting it enables to connect to the database server via Unix socket mounted in the container.
+
+If TCP connection is preferred, connection via the Unix socket can be disabled by adding the following configuration to your `vars.yml` file:
+
+```yaml
+# Disable the connection to the MySQL compatible server via a Unix socket
+freescout_database_mysql_socket_enabled: false
+
+# Disable the connection to the Postgres server via a Unix socket
+freescout_database_postgres_socket_enabled: false
+```
 
 ### Specify administrator's log in credentials
 

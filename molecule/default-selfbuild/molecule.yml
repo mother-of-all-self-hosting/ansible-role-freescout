@@ -46,12 +46,12 @@ provisioner:
         # Test self-building
         freescout_container_image_self_build: true
 
-        # Variables required for FreeScout to connect to the Postgres database
-        freescout_database_postgres_hostname: "{{ postgres_connection_hostname }}"
-        freescout_database_postgres_port: "{{ postgres_connection_port }}"
+        # Variables required for FreeScout to connect to the Postgres database (via Unix socket)
         freescout_database_postgres_username: my_database_username
         freescout_database_postgres_password: my_database_password
         freescout_database_name: freescout
+        freescout_database_postgres_socket_enabled: true
+        freescout_database_postgres_socket_path_host: "{{ postgres_run_path }}"
         freescout_systemd_required_services_list_auto: |
           {{
             (['postgres.service'])
@@ -61,7 +61,7 @@ provisioner:
         postgres_uid: 1000
         postgres_gid: 1000
         postgres_connection_password: postgres_password
-        postgres_container_network: "{{ freescout_container_network }}"
+        postgres_container_unix_socket_enabled: true
         postgres_managed_databases: |
           {{
             [{

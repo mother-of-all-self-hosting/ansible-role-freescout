@@ -44,11 +44,11 @@ provisioner:
         freescout_environment_variables_admin_password: password
 
         # Variables required for FreeScout to connect to the MariaDB database
-        freescout_database_mysql_hostname: "{{ mariadb_connection_hostname }}"
-        freescout_database_mysql_port: "{{ mariadb_connection_port }}"
         freescout_database_mysql_username: my_database_username
         freescout_database_mysql_password: my_database_password
         freescout_database_name: freescout
+        freescout_database_mysql_socket_enabled: true
+        freescout_database_mysql_socket_path_host: "{{ mariadb_run_path }}"
         freescout_systemd_required_services_list_auto: |
           {{
             (['mariadb.service'])
@@ -58,7 +58,7 @@ provisioner:
         mariadb_uid: 1000
         mariadb_gid: 1000
         mariadb_root_password: mariadb_password
-        mariadb_container_network: "{{ freescout_container_network }}"
+        mariadb_container_unix_socket_enabled: true
         mariadb_managed_databases: |
           {{
             [{
