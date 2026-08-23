@@ -1,14 +1,67 @@
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
 # SPDX-FileCopyrightText: 2026 spatterlight
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Verify FreeScout systemd service
+- name: Verify FreeScout
   hosts: all
   become: true
   gather_facts: false
+
+  vars:
+    # FreeScout refuses any request whose Host header is not the one APP_URL
+    # names, answering 403 "Untrusted Host" for every path. Deriving the base
+    # URL from the very variable that becomes APP_URL is what keeps the probes
+    # below testing FreeScout rather than that refusal.
+    freescout_verify_base_url: "{{ freescout_environment_variables_site_url | regex_replace('/$', '') }}"
+
+    # Tables that `php artisan migrate` creates. Their presence in the database
+    # this scenario wired up is what tells a migrated FreeScout apart from one
+    # that found some other database, or none.
+    freescout_verify_expected_tables:
+      - conversations
+      - mailboxes
+      - migrations
+      - users
+
+    # The command prefix that runs a single SQL statement inside the database
+    # container this scenario started, printing bare values with no headers.
+    #
+    # The docker CLI is invoked directly here and below: the ansible-lint
+    # environment used by pre-commit has no collections installed, so
+    # community.docker.* would fail the playbook syntax check.
+    freescout_verify_db_command: >-
+      {{
+        (
+          'docker exec ' ~ (mariadb_identifier | default('mariadb')) ~
+          ' mariadb --user=' ~ (freescout_database_mysql_username | quote) ~
+          ' --password=' ~ (freescout_database_mysql_password | quote) ~
+          ' --batch --skip-column-names ' ~ (freescout_database_name | quote) ~ ' -e '
+        ) if freescout_database_type == 'mysql' else (
+          'docker exec --env=PGPASSWORD=' ~ (freescout_database_postgres_password | quote) ~
+          ' ' ~ (postgres_identifier | default('postgres')) ~
+          ' psql -U ' ~ (freescout_database_postgres_username | quote) ~
+          ' -d ' ~ (freescout_database_name | quote) ~ ' -tAc '
+        )
+      }}
+
+    freescout_verify_tables_query: >-
+      SELECT table_name FROM information_schema.tables
+      WHERE table_schema = {{ "DATABASE()" if freescout_database_type == 'mysql' else "'public'" }}
+
   tasks:
+    # Role defaults are not in scope in a verify play, but the version that
+    # Renovate bumps lives in them and is what the running FreeScout is checked
+    # against below. Only leaf literals may be read out of this namespace -
+    # anything Jinja-derived (`freescout_container_image_tag` and friends)
+    # would be resolved against an empty one.
+    - name: Load the FreeScout role defaults
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+        name: freescout_defaults
+
     - name: Wait for FreeScout service to become active (up to 180s)
       ansible.builtin.systemd:
         name: freescout.service
@@ -29,25 +82,183 @@
         cmd: journalctl -xeu freescout.service
       changed_when: false
 
-    - name: Wait for FreeScout HTTP endpoint to respond (up to 10m)
+    # There is no setup wizard to get past: the container's entrypoint runs
+    # `php artisan migrate --force` and `php artisan freescout:create-user`
+    # from the environment this role templates, and exits rather than serving
+    # anything if the database is unreachable. So `/` answering a redirect to
+    # /login - rather than 200 on some install form - is already a statement
+    # that the migrations ran. Redirects are deliberately not followed, so that
+    # the redirect itself is what gets asserted; `location` comes back absolute.
+    #
+    # The migrations, the module installs and the asset build take minutes on a
+    # first boot, and systemd reports the unit active as soon as `docker start`
+    # has not yet exited, so this needs a generous ladder of its own.
+    - name: Wait for FreeScout to redirect to its login page (up to 10m)
       ansible.builtin.uri:
-        url: "http://localhost:8080/"
+        url: "{{ freescout_verify_base_url }}/"
         method: GET
-        status_code: [200, 302]
+        status_code: [302]
         follow_redirects: none
-      register: freescout_endpoint
-      until: freescout_endpoint.status in [200, 302]
+      register: freescout_root
+      until: freescout_root.status == 302 and (freescout_root.location | default('')).endswith('/login')
       retries: 120
       delay: 5
 
-    - name: Assert FreeScout HTTP endpoint responds
+    - name: Assert FreeScout redirects an anonymous visitor to its login page
       ansible.builtin.assert:
-        that: freescout_endpoint.status in [200, 302]
-        fail_msg: "FreeScout did not respond as expected ({{ freescout_endpoint.status | default('no response') }})"
-        success_msg: "FreeScout responded with {{ freescout_endpoint.status }}"
+        that: (freescout_root.location | default('')).endswith('/login')
+        fail_msg: "FreeScout redirected to {{ freescout_root.location | default('nowhere') }}, expected its login page"
+        success_msg: "FreeScout redirects an anonymous visitor to {{ freescout_root.location }}"
 
-    - name: Show FreeScout systemd service status summary
+    - name: Retrieve the FreeScout login page
+      ansible.builtin.uri:
+        url: "{{ freescout_verify_base_url }}/login"
+        method: GET
+        status_code: [200]
+        return_content: true
+      register: freescout_login_page
+
+    # FreeScout renders a full HTML page for its refusals too (the untrusted
+    # host and unsupported browser checks both `abort(403)` into a styled error
+    # view), so the absence of that page is asserted alongside the presence of
+    # the form fields - a check for "some HTML came back" would pass on those.
+    - name: Assert the FreeScout login page renders its sign-in form
+      ansible.builtin.assert:
+        that:
+          - "'<title>FreeScout</title>' in freescout_login_page.content"
+          - "'name=\"email\"' in freescout_login_page.content"
+          - "'name=\"password\"' in freescout_login_page.content"
+          - "'name=\"_token\"' in freescout_login_page.content"
+          - "'Access denied' not in freescout_login_page.content"
+        fail_msg: "The FreeScout login page did not render its sign-in form"
+        success_msg: "The FreeScout login page renders its sign-in form"
+
+    - name: Extract the CSRF token from the FreeScout login page
+      ansible.builtin.set_fact:
+        freescout_csrf_token: "{{ freescout_login_page.content | regex_findall('name=\"_token\" value=\"([^\"]+)\"') | first }}"
+
+    # Signing in reaches all the way through to the `users` table, so it proves
+    # that the administrator account the role asked the container to create
+    # really exists there, with the password it asked for.
+    #
+    # Wrong credentials answer 302 as well - back to /login - so it is the
+    # redirect target, not the status, that distinguishes a real sign-in.
+    - name: Sign in as the administrator FreeScout was told to create
+      ansible.builtin.uri:
+        url: "{{ freescout_verify_base_url }}/login"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          _token: "{{ freescout_csrf_token }}"
+          email: "{{ freescout_environment_variables_admin_email }}"
+          password: "{{ freescout_environment_variables_admin_password }}"
+        headers:
+          Cookie: "{{ freescout_login_page.cookies_string }}"
+        status_code: [302]
+        follow_redirects: none
+      register: freescout_login
+
+    - name: Assert FreeScout signed the administrator in
+      ansible.builtin.assert:
+        that: not (freescout_login.location | default('/login')).endswith('/login')
+        fail_msg: >-
+          FreeScout sent {{ freescout_environment_variables_admin_email }} back to the login page -
+          the account does not exist, or its password is not the one the role set
+        success_msg: "FreeScout signs {{ freescout_environment_variables_admin_email }} in, landing on {{ freescout_login.location }}"
+
+    # Signing in regenerates the session, so the dashboard has to be asked for
+    # with the cookie the sign-in handed back rather than the one from the form
+    # page. On a redirect, `uri` populates neither `cookies` nor
+    # `cookies_string` - a 3xx leaves its response-parsing path early - so the
+    # raw `set_cookie` header is what there is to work with. Everything from
+    # the first `;` on is attributes (expires, path, httponly), and what
+    # remains is the `name=value` pair a Cookie header wants.
+    - name: Retrieve the FreeScout dashboard as the signed-in administrator
+      ansible.builtin.uri:
+        url: "{{ freescout_verify_base_url }}/"
+        method: GET
+        headers:
+          Cookie: "{{ freescout_login.set_cookie | default('') | regex_replace(';.*$', '') }}"
+        status_code: [200]
+        return_content: true
+      register: freescout_dashboard
+
+    - name: Assert FreeScout serves its dashboard to the signed-in administrator
+      ansible.builtin.assert:
+        that: "'Dashboard' in freescout_dashboard.content"
+        fail_msg: "FreeScout did not serve its dashboard to the signed-in administrator"
+        success_msg: "FreeScout serves its dashboard to the signed-in administrator"
+
+    # Everything above is answered by FreeScout itself, which would say the
+    # same things if it had quietly found some other database. Looking into the
+    # one this scenario wired up is what rules that out.
+    - name: List the tables FreeScout migrated into the database
+      ansible.builtin.command:
+        cmd: "{{ freescout_verify_db_command }} {{ freescout_verify_tables_query | quote }}"
+      register: freescout_db_tables
+      changed_when: false
+
+    - name: Assert FreeScout migrated its schema into the database this scenario wired up
+      ansible.builtin.assert:
+        that: freescout_verify_expected_tables | difference(freescout_db_tables.stdout_lines | map('trim') | list) | length == 0
+        fail_msg: >-
+          The {{ freescout_database_type }} database '{{ freescout_database_name }}' is missing
+          {{ freescout_verify_expected_tables | difference(freescout_db_tables.stdout_lines | map('trim') | list) | join(', ') }} -
+          FreeScout is not using it
+        success_msg: >-
+          The {{ freescout_database_type }} database '{{ freescout_database_name }}' holds
+          {{ freescout_db_tables.stdout_lines | length }} FreeScout tables
+
+    - name: Read the administrator account out of the database
+      ansible.builtin.command:
+        cmd: "{{ freescout_verify_db_command }} {{ 'SELECT email FROM users' | quote }}"
+      register: freescout_db_users
+      changed_when: false
+
+    - name: Assert the administrator account was created in that same database
+      ansible.builtin.assert:
+        that: freescout_environment_variables_admin_email in (freescout_db_users.stdout_lines | map('trim') | list)
+        fail_msg: >-
+          The users table holds {{ freescout_db_users.stdout_lines | map('trim') | join(', ') | default('nothing', true) }},
+          not {{ freescout_environment_variables_admin_email }}
+        success_msg: "The users table holds {{ freescout_environment_variables_admin_email }}"
+
+    # Tying the running FreeScout to the version pinned in defaults/main.yml is
+    # what makes this scenario a real test of the version Renovate bumps: a
+    # bump to an image that cannot migrate or boot cannot pass here. The
+    # application reports it from its own booted configuration, so this covers
+    # the image that is actually running.
+    - name: Query the version reported by the running FreeScout
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - freescout
+          - php
+          - -r
+          - >-
+            require "/var/www/html/vendor/autoload.php";
+            $app = require "/var/www/html/bootstrap/app.php";
+            $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+            echo config("app.version");
+      register: freescout_version_query
+      changed_when: false
+
+    # The pinned value carries a leading `v` (`v1.8.235`); the application
+    # reports the bare version (`1.8.235`).
+    - name: Assert the running FreeScout is the version this role installs
+      ansible.builtin.assert:
+        that: freescout_version_query.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
+        fail_msg: >-
+          FreeScout reports {{ freescout_version_query.stdout | trim }},
+          but defaults/main.yml pins {{ freescout_defaults.freescout_version }}
+        success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
+
+    - name: Show FreeScout verification summary
       ansible.builtin.debug:
         msg:
           - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
-          - "FreeScout HTTP: {{ freescout_endpoint.status }}"
+          - "FreeScout version: {{ freescout_version_query.stdout | trim }} (pinned {{ freescout_defaults.freescout_version }})"
+          - "FreeScout anonymous: {{ freescout_root.status }} to {{ freescout_root.location }}"
+          - "FreeScout sign-in: {{ freescout_login.status }} to {{ freescout_login.location }}"
+          - "FreeScout database: {{ freescout_database_type }} '{{ freescout_database_name }}', {{ freescout_db_tables.stdout_lines | length }} tables"
