@@ -38,12 +38,12 @@ provisioner:
         freescout_hostname: localhost
         freescout_container_labels_traefik_enabled: false
         freescout_container_http_host_bind_port: 8080
-        freescout_database_type: postgres
         freescout_environment_variables_site_url: http://localhost:8080/
         freescout_environment_variables_admin_email: admin@example.com
         freescout_environment_variables_admin_password: password
 
         # Variables required for FreeScout to connect to the Postgres database (via Unix socket)
+        freescout_database_type: postgres
         freescout_database_postgres_username: my_database_username
         freescout_database_postgres_password: my_database_password
         freescout_database_name: freescout
