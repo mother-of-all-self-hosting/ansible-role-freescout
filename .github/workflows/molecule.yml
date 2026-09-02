@@ -158,7 +158,7 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ~/.ansible/collections
-          key: ansible-collections-${{ hashFiles('freescout/molecule/*/requirements.yml') }}
+          key: ansible-collections-${{ hashFiles('freescout/molecule/default-selfbuild/requirements.yml') }}
 
       - name: Run Molecule
         working-directory: freescout
