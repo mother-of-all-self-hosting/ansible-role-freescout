@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Verify FreeScout
+- name: Verify self-built FreeScout
   hosts: all
   become: true
   gather_facts: false
