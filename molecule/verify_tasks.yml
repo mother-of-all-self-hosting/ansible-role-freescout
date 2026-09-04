@@ -207,7 +207,7 @@
       but defaults/main.yml pins {{ freescout_defaults.freescout_version }}
     success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
 
-- name: Show FreeScout verification summary
+- name: Show the FreeScout verification summary
   ansible.builtin.debug:
     msg:
       - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
