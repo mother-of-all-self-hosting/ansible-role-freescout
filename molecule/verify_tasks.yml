@@ -211,7 +211,7 @@
   ansible.builtin.debug:
     msg:
       - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
-      - "FreeScout version: {{ freescout_version_query.stdout | trim }} (pinned {{ freescout_defaults.freescout_version }})"
+      - "FreeScout version: {{ freescout_version_query.stdout | trim }}"
       - "FreeScout anonymous: {{ freescout_root.status }} to {{ freescout_root.location }}"
       - "FreeScout sign-in: {{ freescout_login.status }} to {{ freescout_login.location }}"
       - "FreeScout database: {{ freescout_database_type }} '{{ freescout_database_name }}', {{ freescout_db_tables.stdout_lines | length }} tables"
