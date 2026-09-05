@@ -202,9 +202,7 @@
 - name: Assert the running FreeScout is the version this role installs
   ansible.builtin.assert:
     that: freescout_version_query.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
-    fail_msg: >-
-      FreeScout reports {{ freescout_version_query.stdout | trim }},
-      but defaults/main.yml pins {{ freescout_defaults.freescout_version }}
+    fail_msg: "FreeScout reports {{ freescout_version_query.stdout | trim | default('none') }}, expected {{ freescout_defaults.freescout_version }}"
     success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
 
 - name: Show the FreeScout verification summary
