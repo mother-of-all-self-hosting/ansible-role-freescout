@@ -176,10 +176,7 @@
       not {{ freescout_environment_variables_admin_email }}
     success_msg: "The users table holds {{ freescout_environment_variables_admin_email }}"
 
-# Tying the running FreeScout to the version pinned in defaults/main.yml is
-# what makes this scenario a real test of the version Renovate bumps: a
-# bump to an image that cannot migrate or boot cannot pass here. The
-# application reports it from its own booted configuration, so this covers
+# The application reports version from its own booted configuration, so this covers
 # the image that is actually running.
 - name: Query the version of the running FreeScout
   ansible.builtin.command:
