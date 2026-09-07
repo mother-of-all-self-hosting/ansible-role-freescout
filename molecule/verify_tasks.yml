@@ -35,6 +35,33 @@
     cmd: journalctl -xeu freescout.service
   changed_when: false
 
+# The application reports version from its own booted configuration, so this covers
+# the image that is actually running.
+- name: Query the version of the running FreeScout
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - freescout
+      - php
+      - -r
+      - >-
+        require "/var/www/html/vendor/autoload.php";
+        $app = require "/var/www/html/bootstrap/app.php";
+        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        echo config("app.version");
+  register: freescout_version_query
+  changed_when: false
+
+# `freescout_version` carries a leading `v` (`v3.14.0`) but the binary
+# reports the bare version (`3.14.0`). Any leading `v` is normalized
+# away on both sides, so that this keeps holding if either side ever changes.
+- name: Assert the running FreeScout is the version this role installs
+  ansible.builtin.assert:
+    that: freescout_version_query.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
+    fail_msg: "FreeScout reports {{ freescout_version_query.stdout | trim | default('none') }}, expected {{ freescout_defaults.freescout_version }}"
+    success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
+
 # There is no setup wizard to get past: the container's entrypoint runs
 # `php artisan migrate --force` and `php artisan freescout:create-user`
 # from the environment this role templates, and exits rather than serving
@@ -175,33 +202,6 @@
       The users table holds {{ freescout_db_users.stdout_lines | map('trim') | join(', ') | default('nothing', true) }},
       not {{ freescout_environment_variables_admin_email }}
     success_msg: "The users table holds {{ freescout_environment_variables_admin_email }}"
-
-# The application reports version from its own booted configuration, so this covers
-# the image that is actually running.
-- name: Query the version of the running FreeScout
-  ansible.builtin.command:
-    argv:
-      - docker
-      - exec
-      - freescout
-      - php
-      - -r
-      - >-
-        require "/var/www/html/vendor/autoload.php";
-        $app = require "/var/www/html/bootstrap/app.php";
-        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-        echo config("app.version");
-  register: freescout_version_query
-  changed_when: false
-
-# `freescout_version` carries a leading `v` (`v3.14.0`) but the binary
-# reports the bare version (`3.14.0`). Any leading `v` is normalized
-# away on both sides, so that this keeps holding if either side ever changes.
-- name: Assert the running FreeScout is the version this role installs
-  ansible.builtin.assert:
-    that: freescout_version_query.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
-    fail_msg: "FreeScout reports {{ freescout_version_query.stdout | trim | default('none') }}, expected {{ freescout_defaults.freescout_version }}"
-    success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
 
 - name: Show the FreeScout verification summary
   ansible.builtin.debug:
