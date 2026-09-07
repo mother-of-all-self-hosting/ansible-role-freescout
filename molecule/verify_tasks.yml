@@ -181,7 +181,7 @@
 # bump to an image that cannot migrate or boot cannot pass here. The
 # application reports it from its own booted configuration, so this covers
 # the image that is actually running.
-- name: Query the version reported by the running FreeScout
+- name: Query the version of the running FreeScout
   ansible.builtin.command:
     argv:
       - docker
