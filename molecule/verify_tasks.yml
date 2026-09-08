@@ -38,7 +38,7 @@
 - name: Retrieve the FreeScout systemd service log for debugging
   when: freescout_debug_service_enabled | bool
   ansible.builtin.command:
-    cmd: journalctl -xeu freescout.service
+    cmd: journalctl --no-pager --output=cat --unit=freescout.service
   changed_when: false
 
 # The application reports version from its own booted configuration, so this covers
