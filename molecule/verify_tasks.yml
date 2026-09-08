@@ -56,7 +56,7 @@
         $app = require "/var/www/html/bootstrap/app.php";
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
         echo config("app.version");
-  register: freescout_version_query
+  register: freescout_version_reported
   changed_when: false
 
 # `freescout_version` carries a leading `v` (`v3.14.0`) but the binary
@@ -64,9 +64,9 @@
 # away on both sides, so that this keeps holding if either side ever changes.
 - name: Assert the running FreeScout is the version this role installs
   ansible.builtin.assert:
-    that: freescout_version_query.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
-    fail_msg: "FreeScout reports {{ freescout_version_query.stdout | trim | default('none') }}, expected {{ freescout_defaults.freescout_version }}"
-    success_msg: "FreeScout reports {{ freescout_version_query.stdout | trim }}"
+    that: freescout_version_reported.stdout | trim == freescout_defaults.freescout_version | regex_replace('^v', '')
+    fail_msg: "FreeScout reports {{ freescout_version_reported.stdout | trim | default('none') }}, expected {{ freescout_defaults.freescout_version }}"
+    success_msg: "FreeScout reports {{ freescout_version_reported.stdout | trim }}"
 
 # There is no setup wizard to get past: the container's entrypoint runs
 # `php artisan migrate --force` and `php artisan freescout:create-user`
@@ -213,7 +213,7 @@
   ansible.builtin.debug:
     msg:
       - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
-      - "FreeScout version: {{ freescout_version_query.stdout | trim }}"
+      - "FreeScout version: {{ freescout_version_reported.stdout | trim }}"
       - "FreeScout anonymous: {{ freescout_root.status }} to {{ freescout_root.location }}"
       - "FreeScout sign-in: {{ freescout_login.status }} to {{ freescout_login.location }}"
       - "FreeScout database: {{ freescout_database_type }} '{{ freescout_database_name }}', {{ freescout_db_tables.stdout_lines | length }} tables"
