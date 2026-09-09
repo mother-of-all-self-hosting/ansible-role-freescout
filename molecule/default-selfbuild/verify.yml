@@ -52,5 +52,23 @@
       WHERE table_schema = {{ "DATABASE()" if freescout_database_type == 'mysql' else "'public'" }}
 
   tasks:
-    - name: Run the shared FreeScout verification
-      ansible.builtin.include_tasks: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
+    - name: Verify that FreeScout works
+      block:
+        - name: Run the shared FreeScout verification
+          ansible.builtin.include_tasks: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the FreeScout systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=freescout.service
+          register: freescout_service_log
+          changed_when: false
+
+        - name: Show the FreeScout systemd service log
+          ansible.builtin.debug:
+            var: freescout_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "FreeScout verification failed. The systemd service log is printed above."
