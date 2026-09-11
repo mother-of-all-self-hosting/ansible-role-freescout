@@ -51,6 +51,10 @@
       SELECT table_name FROM information_schema.tables
       WHERE table_schema = {{ "DATABASE()" if freescout_database_type == 'mysql' else "'public'" }}
 
+    freescout_verify_units:
+      - freescout.service
+      - mariadb.service
+
   tasks:
     - name: Verify that FreeScout works
       block:

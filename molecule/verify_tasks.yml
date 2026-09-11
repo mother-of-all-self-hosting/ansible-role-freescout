@@ -15,13 +15,14 @@
     file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
     name: freescout_defaults
 
-- name: Wait for the FreeScout systemd service to become active (up to 180s)
+- name: Wait for the FreeScout systemd services to become active (up to 180s each)
   ansible.builtin.systemd_service:
-    name: freescout.service
-  register: freescout_service
-  until: freescout_service.status.ActiveState == 'active'
+    name: "{{ item }}"
+  register: freescout_services
+  until: freescout_services.status.ActiveState == 'active'
   retries: 36
   delay: 5
+  loop: "{{ freescout_verify_units }}"
   # So that giving up is reported by the assertion below rather than as a
   # wall of systemd unit properties.
   failed_when: false
@@ -29,17 +30,20 @@
 # `Restart=always` in the systemd unit means that even a container which crashes
 # and gets restarted reads as active here, so this is a precondition rather than
 # a result.
-- name: Assert the FreeScout systemd service is active
+- name: Assert the FreeScout systemd services are active
   ansible.builtin.assert:
-    that: freescout_service.status.ActiveState == 'active'
-    fail_msg: "freescout.service is not active ({{ freescout_service.status.ActiveState }})"
-    success_msg: "freescout.service is active"
+    that: freescout_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+    fail_msg: >-
+      Not every service is active:
+      {{ dict(freescout_verify_units | zip(freescout_services.results | map(attribute='status.ActiveState'))) }}
+    success_msg: "Every systemd service is active"
 
-- name: Retrieve the FreeScout systemd service log for debugging
+- name: Retrieve the FreeScout systemd services log for debugging
   when: freescout_debug_service_enabled | bool
   ansible.builtin.command:
-    cmd: journalctl --no-pager --output=cat --unit=freescout.service
+    cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
   changed_when: false
+  loop: "{{ freescout_verify_units }}"
 
 # The application reports version from its own booted configuration, so this covers
 # the image that is actually running.
@@ -212,7 +216,7 @@
 - name: Show the FreeScout verification summary
   ansible.builtin.debug:
     msg:
-      - "FreeScout systemd: {{ freescout_service.status.ActiveState }}"
+      - "FreeScout systemd: {% for unit, state in freescout_verify_units | zip(freescout_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
       - "FreeScout version: {{ freescout_version_reported.stdout | trim }}"
       - "FreeScout anonymous: {{ freescout_root.status }} to {{ freescout_root.location }}"
       - "FreeScout sign-in: {{ freescout_login.status }} to {{ freescout_login.location }}"
