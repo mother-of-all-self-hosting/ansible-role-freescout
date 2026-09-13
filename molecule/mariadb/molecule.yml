@@ -30,6 +30,7 @@ provisioner:
       all:
         # Helper variables
         freescout_debug_service_enabled: false
+        freescout_restarts_check_enabled: true
 
         # Variables for FreeScout
         freescout_uid: 1000
