@@ -67,12 +67,14 @@ After adjusting the hostname, make sure to adjust your DNS records to point the 
 
 ### Set administrator's account details
 
-You also need to set the email address and password for the administrator by adding the following configuration to your `vars.yml` file:
+You also need to specify administrator's account details by adding the following configuration to your `vars.yml` file:
 
 ```yaml
 freescout_environment_variables_admin_email: ADMIN_EMAIL_ADDRESS_HERE
 freescout_environment_variables_admin_password: ADMIN_PASSWORD_HERE
 ```
+
+Generating a strong password (e.g. `pwgen -s 64 1`) is recommended for `freescout_environment_variables_admin_password`.
 
 ### Configuring database
 
