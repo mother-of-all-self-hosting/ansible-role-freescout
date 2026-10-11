@@ -65,6 +65,15 @@ freescout_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
+### Set administrator's account details
+
+You also need to set the email address and password for the administrator by adding the following configuration to your `vars.yml` file:
+
+```yaml
+freescout_environment_variables_admin_email: ADMIN_EMAIL_ADDRESS_HERE
+freescout_environment_variables_admin_password: ADMIN_PASSWORD_HERE
+```
+
 ### Configuring database
 
 #### Specify database
@@ -103,15 +112,6 @@ freescout_database_mysql_socket_enabled: false
 
 # Disable the connection to the Postgres server via a Unix socket
 freescout_database_postgres_socket_enabled: false
-```
-
-### Specify administrator's log in credentials
-
-You also need to set the email address and password for the administrator by adding the following configuration to your `vars.yml` file:
-
-```yaml
-freescout_environment_variables_admin_email: ADMIN_EMAIL_ADDRESS_HERE
-freescout_environment_variables_admin_password: ADMIN_PASSWORD_HERE
 ```
 
 ### Extending the configuration
