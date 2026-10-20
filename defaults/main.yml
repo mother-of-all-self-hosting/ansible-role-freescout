@@ -97,6 +97,9 @@ freescout_container_labels_traefik_priority: 0
 freescout_container_labels_traefik_entrypoints: web-secure
 freescout_container_labels_traefik_tls: "{{ freescout_container_labels_traefik_entrypoints != 'web' }}"
 freescout_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+freescout_container_labels_traefik_middleware_basic_auth_enabled: false
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
+freescout_container_labels_traefik_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `freescout_container_labels_traefik_additional_request_headers_custom`
