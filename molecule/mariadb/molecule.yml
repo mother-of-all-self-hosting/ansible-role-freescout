@@ -52,8 +52,8 @@ provisioner:
 
         # Variables required for FreeScout to connect to the MariaDB database
         freescout_database_type: mysql
-        freescout_database_mysql_username: my_database_username
-        freescout_database_mysql_password: my_database_password
+        freescout_database_mysql_username: /#@my_database_username?%
+        freescout_database_mysql_password: /#@my_database_password?%
         freescout_database_name: freescout
         freescout_database_mysql_socket_enabled: true
         freescout_database_mysql_socket_path_host: "{{ mariadb_run_path }}"

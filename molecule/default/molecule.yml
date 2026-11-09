@@ -52,8 +52,8 @@ provisioner:
 
         # Variables required for FreeScout to connect to the Postgres database (via Unix socket)
         freescout_database_type: postgres
-        freescout_database_postgres_username: my_database_username
-        freescout_database_postgres_password: my_database_password
+        freescout_database_postgres_username: /#@my_database_username?%
+        freescout_database_postgres_password: /#@my_database_password?%
         freescout_database_name: freescout
         freescout_database_postgres_socket_enabled: true
         freescout_database_postgres_socket_path_host: "{{ postgres_run_path }}"
