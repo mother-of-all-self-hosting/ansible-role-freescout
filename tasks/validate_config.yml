@@ -32,9 +32,6 @@
   with_items:
     - freescout_uid
     - freescout_gid
-    - freescout_hostname
-    - freescout_path_prefix
-    - freescout_container_network
     - freescout_environment_variables_admin_email
     - freescout_environment_variables_admin_password
 
